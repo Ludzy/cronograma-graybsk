@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Mensal - Line Gray</title>
+    <style>
+        :root {
+            --color-primary: #4865D1;
+            --color-secondary: #637CDD;
+            --color-accent: #7F94E8;
+            --color-light: #9AABF4;
+            --color-background: #B5C2FF;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-background);
+            color: #000;
+        }
+
+        header {
+            background-color: var(--color-primary);
+            color: white;
+            text-align: center;
+            padding: 1.5em 0;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .edit-button {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background-color: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .edit-button:hover {
+            background-color: var(--color-secondary);
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .month-header {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 1em;
+            text-align: center;
+            font-size: 1.5em;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .day {
+            background-color: var(--color-light);
+            border: 2px solid var(--color-secondary);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .day .date {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+            font-size: 1.2em;
+        }
+
+        .day .activity {
+            color: #000;
+            font-size: 1em;
+        }
+
+        .day .edit {
+            margin-top: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .day .edit textarea {
+            width: 100%;
+            height: 50px;
+            margin-bottom: 5px;
+            resize: none;
+        }
+
+        .day .edit button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .day .edit button:hover {
+            background-color: var(--color-secondary);
+        }
+
+        .editing .day .edit {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Calendário Mensal - Line Gray</h1>
+        <button class="edit-button" id="editToggle">Editar</button>
+    </header>
+    <div class="calendar" id="calendar"></div>
+
+    <script>
+        const activities = [
+            "Day Off / Solo Queue", // Domingo
+            "Scrim",              // Segunda
+            "Teórico",            // Terça
+            "Scrim",              // Quarta
+            "Teórico",            // Quinta
+            "Day Off / Solo Queue", // Sexta
+            "Day Off / Solo Queue"  // Sábado
+        ];
+
+        let isEditing = false;
+        const today = new Date();  // Data atual
+
+        document.getElementById("editToggle").addEventListener("click", () => {
+            isEditing = !isEditing;
+            document.body.classList.toggle("editing", isEditing);
+        });
+
+        function sendToDiscord(dateKey, newActivity) {
+        const webhookURL = "https://discord.com/api/webhooks/1295872015508705326/5eW7w_aaYAhZMVVjWuQHqodelM7cS236kSOzhipqVJZLEuhFZ9SCLhsaCvBdtFYlZC00";
+        const [year, month, day] = dateKey.split("-");
+        const formattedDate = `${day}/${month}/${year}`;
+        const payload = {
+            embeds: [{
+                title: "Atividade no Calendário Alterada",
+                description: `A atividade para a data foi atualizada!`,
+                color: 4886754,  // Um tom de azul
+                fields: [
+                    {
+                        name: "Data",
+                        value: formattedDate,
+                        inline: true
+                    },
+                    {
+                        name: "Nova Atividade",
+                        value: newActivity,
+                        inline: true
+                    }
+                ],
+                footer: {
+                    text: "Line Gray"
+                }
+            }]
+        };
+
+        fetch(webhookURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error("Erro ao enviar mensagem para o Discord", response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error("Erro ao conectar ao Discord", error);
+        });
+    }
+
+
+        function saveActivity(dateKey, newActivity) {
+            localStorage.setItem(dateKey, newActivity);
+            sendToDiscord(dateKey, newActivity);
+        }
+
+        function getSavedActivity(dateKey) {
+            return localStorage.getItem(dateKey) || null;
+        }
+
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // A partir do dia de hoje
+            const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Último dia do mês atual
+
+            // Limpar calendário antes de gerar
+            calendar.innerHTML = '';
+
+            for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+                const day = document.createElement('div');
+                day.className = 'day';
+
+                const dateLabel = document.createElement('div');
+                dateLabel.className = 'date';
+                const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                dateLabel.textContent = date.toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: '2-digit'
+                });
+
+                const activityLabel = document.createElement('div');
+                activityLabel.className = 'activity';
+                const savedActivity = getSavedActivity(dateKey);
+                activityLabel.textContent = savedActivity || activities[date.getDay()];
+
+                const editContainer = document.createElement('div');
+                editContainer.className = 'edit';
+
+                const textarea = document.createElement('textarea');
+                textarea.value = savedActivity || activities[date.getDay()];
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Salvar';
+                saveButton.addEventListener('click', () => {
+                    const newActivity = textarea.value;
+                    activityLabel.textContent = newActivity;
+                    saveActivity(dateKey, newActivity);
+                });
+
+                editContainer.appendChild(textarea);
+                editContainer.appendChild(saveButton);
+
+                day.appendChild(dateLabel);
+                day.appendChild(activityLabel);
+                day.appendChild(editContainer);
+                calendar.appendChild(day);
+            }
+        }
+
+        generateCalendar();
+    </script>
+</body>
+</html>
