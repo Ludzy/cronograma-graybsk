@@ -3,215 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário Mensal - Line Gray</title>
+    <title>Cronograma</title>
     <style>
         :root {
-            --color-primary: #4865D1;
-            --color-secondary: #637CDD;
-            --color-accent: #7F94E8;
-            --color-light: #9AABF4;
-            --color-background: #B5C2FF;
+            --color-primary: #4A69D6;
+            --color-secondary: #A5B4F2;
+            --color-accent: #E2C1FF;
+            --color-light: #F2F4FF;
+            --color-background: #E8E9F3;
+            --color-separator: #D1D9FF;
+            --color-week-text: #555;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --color-mvp-bg: #D1E0FF;
+            --color-mvp-text: #333;
+            --color-mvp-border: #A5B4F2;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: var(--font-family);
             margin: 0;
             padding: 0;
             background-color: var(--color-background);
-            color: #000;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 90px; /* Espaço para dispositivos móveis */
+            overflow: hidden; /* Remove barras de rolagem */
+            height: 100vh; /* Garante que a altura da tela não ultrapasse */
+            width: 100vw; /* Garante que a largura da tela não ultrapasse */
         }
 
         header {
             background-color: var(--color-primary);
             color: white;
             text-align: center;
-            padding: 1.5em 0;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
+            padding: 2em 0;
+            width: 110%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-radius: 20px 20px 0 0;
+            margin-bottom: 20px;
         }
 
-        .edit-button {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            background-color: var(--color-accent);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-
-        .edit-button:hover {
-            background-color: var(--color-secondary);
+        h1 {
+            font-size: 1.6em;
+            font-weight: 600;
         }
 
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 20px;
+            gap: 15px;
             padding: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
-
-        .month-header {
-            background-color: var(--color-primary);
-            color: white;
-            padding: 1em;
-            text-align: center;
-            font-size: 1.5em;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            overflow: hidden; /* Remove rolagem do calendário */
         }
 
         .day {
             background-color: var(--color-light);
-            border: 2px solid var(--color-secondary);
-            border-radius: 15px;
-            padding: 15px;
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .day:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .day .date {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--color-primary);
+        .weekday {
             font-size: 1.2em;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-transform: capitalize;
         }
 
-        .day .activity {
-            color: #000;
+        .date {
+            font-size: 1.3em;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .activity {
             font-size: 1em;
+            color: #777;
         }
 
-        .day .edit {
-            margin-top: 10px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .day .edit textarea {
+        .separator {
             width: 100%;
-            height: 50px;
-            margin-bottom: 5px;
-            resize: none;
+            height: 2px;
+            background-color: var(--color-separator);
+            margin: 25px 0;
         }
 
-        .day .edit button {
-            background-color: var(--color-primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
+        .week-title {
+            text-align: center;
+            font-size: 1.4em;
+            color: var(--color-week-text);
+            font-weight: 600;
+            margin-top: 20px;
         }
 
-        .day .edit button:hover {
-            background-color: var(--color-secondary);
+        /* Estilos para o MVP (Melhor Jogador da Semana) */
+        .mvp-container {
+            background-color: var(--color-mvp-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            width: 100%;
+            margin: 30px auto;
+            text-align: center;
         }
 
-        .editing .day .edit {
+        .mvp-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--color-mvp-text);
+            margin-bottom: 10px;
+        }
+
+        .mvp-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .mvp-description {
+            font-size: 1em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .mvp-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 15px auto;
+            object-fit: cover;
+        }
+
+        .mvp-footer {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            color: var(--color-mvp-text);
+            font-weight: bold;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .calendar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .day {
+                padding: 15px;
+            }
+
+            .weekday {
+                font-size: 1em;
+            }
+
+            .date {
+                font-size: 1.1em;
+            }
+
+            .activity {
+                font-size: 0.9em;
+            }
+
+            header {
+                padding: 1.5em 0;
+            }
+
+            .mvp-container {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 5px;
+            }
+
+            .day {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Calendário Mensal - Line Gray</h1>
-        <button class="edit-button" id="editToggle">Editar</button>
+        <h1>Cronograma Academy - Zenkai</h1>
     </header>
     <div class="calendar" id="calendar"></div>
+
+    <!-- MVP Section -->
+    <div class="mvp-container">
+        <div class="mvp-title">Melhor Jogador da Semana</div>
+        <!--  <img src="https://www.example.com/avatar.jpg" alt="Avatar do MVP" class="mvp-avatar">-->
+        <div class="mvp-name">Logo Logo...</div>
+        <div class="mvp-description">Logo Logo...</div>
+        <div class="mvp-footer">...</div>
+    </div>
 
     <script>
         const activities = [
             "Day Off / Solo Queue", // Domingo
-            "Day Off / Solo Queue",              // Segunda
-            "Scrim",            // Terça
+            "Day Off / Solo Queue",  // Segunda
+            "Scrim",                // Terça
             "Teórico",              // Quarta
-            "Scrim",            // Quinta
-            "Teórico", // Sexta
+            "Scrim",                // Quinta
+            "Teórico",              // Sexta
             "Day Off / Solo Queue"  // Sábado
         ];
 
-        let isEditing = false;
         const today = new Date();  // Data atual
-
-        document.getElementById("editToggle").addEventListener("click", () => {
-            isEditing = !isEditing;
-            document.body.classList.toggle("editing", isEditing);
-        });
-
-        function sendToDiscord(dateKey, newActivity) {
-        const webhookURL = "https://discord.com/api/webhooks/1330985582066663544/5rK7NynO8Yt_HPWtK6zCWtvzElfIIlVkzqNpTEp4hUltDMet-G7vlo10mWNdUqqvxE8L";
-        const [year, month, day] = dateKey.split("-");
-        const formattedDate = `${day}/${month}/${year}`;
-        const payload = {
-            embeds: [{
-                title: "Atividade no Calendário Alterada",
-                description: `A atividade para a data foi atualizada!`,
-                color: 4886754,  // Um tom de azul
-                fields: [
-                    {
-                        name: "Data",
-                        value: formattedDate,
-                        inline: true
-                    },
-                    {
-                        name: "Nova Atividade",
-                        value: newActivity,
-                        inline: true
-                    }
-                ],
-                footer: {
-                    text: "Line Gray"
-                }
-            }]
-        };
-
-        fetch(webhookURL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => {
-            if (!response.ok) {
-                console.error("Erro ao enviar mensagem para o Discord", response.statusText);
-            }
-        })
-        .catch(error => {
-            console.error("Erro ao conectar ao Discord", error);
-        });
-    }
-
-
-        function saveActivity(dateKey, newActivity) {
-            localStorage.setItem(dateKey, newActivity);
-            sendToDiscord(dateKey, newActivity);
-        }
-
-        function getSavedActivity(dateKey) {
-            return localStorage.getItem(dateKey) || null;
-        }
 
         function generateCalendar() {
             const calendar = document.getElementById('calendar');
             const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // A partir do dia de hoje
-            const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Último dia do mês atual
+            const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 6); // Até 7 dias após hoje
+            let isNextWeek = false;  // Flag para indicar se estamos na próxima semana
 
             // Limpar calendário antes de gerar
             calendar.innerHTML = '';
@@ -220,41 +252,40 @@
                 const day = document.createElement('div');
                 day.className = 'day';
 
+                const weekdayLabel = document.createElement('div');
+                weekdayLabel.className = 'weekday';
+                const weekday = date.toLocaleDateString('pt-BR', { weekday: 'short' }); // Obtém o nome do dia sem "feira"
+                weekdayLabel.textContent = weekday.charAt(0).toUpperCase() + weekday.slice(1); // Primeira letra maiúscula
+
                 const dateLabel = document.createElement('div');
                 dateLabel.className = 'date';
                 const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
                 dateLabel.textContent = date.toLocaleDateString('pt-BR', {
-                    weekday: 'long',
                     day: '2-digit',
                     month: '2-digit'
                 });
 
                 const activityLabel = document.createElement('div');
                 activityLabel.className = 'activity';
-                const savedActivity = getSavedActivity(dateKey);
-                activityLabel.textContent = savedActivity || activities[date.getDay()];
+                activityLabel.textContent = activities[date.getDay()];
 
-                const editContainer = document.createElement('div');
-                editContainer.className = 'edit';
-
-                const textarea = document.createElement('textarea');
-                textarea.value = savedActivity || activities[date.getDay()];
-
-                const saveButton = document.createElement('button');
-                saveButton.textContent = 'Salvar';
-                saveButton.addEventListener('click', () => {
-                    const newActivity = textarea.value;
-                    activityLabel.textContent = newActivity;
-                    saveActivity(dateKey, newActivity);
-                });
-
-                editContainer.appendChild(textarea);
-                editContainer.appendChild(saveButton);
-
+                day.appendChild(weekdayLabel);
                 day.appendChild(dateLabel);
                 day.appendChild(activityLabel);
-                day.appendChild(editContainer);
                 calendar.appendChild(day);
+
+                // Verificando se é domingo para inserir a separação de semana
+                if (date.getDay() === 0 && date < endDate) {
+                    const separator = document.createElement('div');
+                    separator.className = 'separator';
+                    calendar.appendChild(separator);
+
+                    // Adiciona o título da próxima semana
+                    const weekTitle = document.createElement('div');
+                    weekTitle.className = 'week-title';
+                    weekTitle.textContent = 'Próxima Semana';
+                    calendar.appendChild(weekTitle);
+                }
             }
         }
 
